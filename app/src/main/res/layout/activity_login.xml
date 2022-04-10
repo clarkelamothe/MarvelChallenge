@@ -62,6 +62,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/auth_default_margin"
         android:background="@drawable/button_shape"
+        android:enabled="false"
         android:text="@string/auth_login_btn_text"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"

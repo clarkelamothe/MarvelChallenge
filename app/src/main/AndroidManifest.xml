@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MarvelChallenge">
         <activity
+            android:name=".ui.home.HomeActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.auth.login.LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.App.SplashScreen">
