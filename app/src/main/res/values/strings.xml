@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Marvel Challenge</string>
+    <string name="marvel_logo_description">Marvel Logo</string>
+    <string name="auth_login_hint_email">Email</string>
+    <string name="auth_login_hint_password">Password</string>
+    <string name="auth_login_btn_text">login</string>
+    <string name="auth_signup_btn_text">signup</string>
 </resources>
