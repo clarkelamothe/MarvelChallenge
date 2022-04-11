@@ -62,4 +62,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.3'
 
+    // FB
+    // FB
+    implementation 'com.facebook.android:facebook-android-sdk:latest.release'
+
 }

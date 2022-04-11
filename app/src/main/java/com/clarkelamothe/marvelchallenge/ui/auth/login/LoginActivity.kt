@@ -11,7 +11,14 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.widget.doAfterTextChanged
 import com.clarkelamothe.domain.model.User
 import com.clarkelamothe.marvelchallenge.databinding.ActivityLoginBinding
+import com.clarkelamothe.marvelchallenge.ui.auth.signup.SignupActivity
 import com.clarkelamothe.marvelchallenge.ui.home.HomeActivity
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -22,27 +29,21 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var auth: FirebaseAuth
+    private lateinit var fbCallbackManager: CallbackManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         installSplashScreen()
+        super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = Firebase.auth
-        onButtonClick()
+
+        fbCallbackManager = CallbackManager.Factory.create()
+
+        onBtnClick()
         onTextChanged()
         observeFormState()
-    }
-
-    private fun onButtonClick() {
-        with(binding) {
-            btnLogin.setOnClickListener {
-            }
-            btnSignup.setOnClickListener {
-                Toast.makeText(this@LoginActivity, "Signup", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun onTextChanged() {
@@ -71,10 +72,10 @@ class LoginActivity : AppCompatActivity() {
             with(binding) {
                 btnLogin.isEnabled = it.isDataValid
                 when {
-                    it.emailError && etEmail.text?.isNotBlank() == true -> etEmail.error =
-                        "Email Error"
-                    it.passwordError && etPassword.text?.isNotBlank() == true -> etPassword.error =
-                        "Password Error"
+                    it.emailError && etEmail.text?.isNotBlank() == true ->
+                        etEmail.error = "Email Error"
+                    it.passwordError && etPassword.text?.isNotBlank() == true ->
+                        etPassword.error = "Password Error"
                     else -> {
                         btnLogin.setOnClickListener {
                             signIn(User(etEmail.text.toString(), etPassword.text.toString()))
@@ -86,27 +87,73 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signIn(user: User) {
-        // [START sign_in_with_email]
         auth.signInWithEmailAndPassword(user.email, user.password)
             .addOnCompleteListener(Activity()) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Toast.makeText(baseContext, "login success", Toast.LENGTH_SHORT).show()
-                    val user = auth.currentUser
-                    Log.d("LOGGED IN USER", "${user?.email}")
-                    goToHome()
+                    goTo(HomeActivity())
                 } else {
-                    // If sign in fails, display a message to the user.
+                    Log.d("AUTH", "FAILED!")
                     Toast.makeText(
-                        baseContext, "Authentication failed.",
+                        this@LoginActivity, "Authentication failed.",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }
-        // [END sign_in_with_email]
     }
 
-    private fun goToHome(){
-        startActivity(Intent(this, HomeActivity::class.java) )
+    private fun signInWithFb() {
+        LoginManager.getInstance()
+            .logInWithReadPermissions(this, callbackManager = fbCallbackManager, listOf("email"))
+        LoginManager.getInstance().registerCallback(callbackManager = fbCallbackManager,
+            object : FacebookCallback<LoginResult> {
+                override fun onCancel() {
+                    finish()
+                }
+
+                override fun onError(error: FacebookException) {
+                    Toast.makeText(this@LoginActivity, "An error occurred", Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                override fun onSuccess(result: LoginResult) {
+                    result.let { it ->
+                        val token = it.accessToken
+                        val credential = FacebookAuthProvider.getCredential(token.token)
+                        FirebaseAuth.getInstance().signInWithCredential(credential)
+                            .addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    Log.d("FB AUTH", "${it.result.user?.email}")
+                                    goTo(HomeActivity())
+                                } else {
+                                    finish()
+                                    Toast.makeText(
+                                        this@LoginActivity,
+                                        "Fb login error",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                    }
+                }
+            })
     }
+
+//    public override fun onStart() {
+//        super.onStart()
+//        val currentUser = auth.currentUser
+//        if (currentUser != null) {
+////            goTo(HomeActivity())
+//        }
+//    }
+
+    private fun onBtnClick() = with(binding) {
+        btnSignup.setOnClickListener {
+            goTo(SignupActivity())
+        }
+        btnFb.setOnClickListener {
+//            signInWithFb()
+        }
+    }
+
+    private fun goTo(activity: Activity) = startActivity(Intent(this, activity::class.java))
 }
