@@ -5,4 +5,11 @@
     <string name="auth_login_hint_password">Password</string>
     <string name="auth_login_btn_text">login</string>
     <string name="auth_signup_btn_text">signup</string>
+    <string name="auth_signup_hint_username">Username</string>
+    <string name="auth_signup_hint_confirm_password">Confirm Password</string>
+    <string name="auth_signup_btn_login">Have an account? Please Login.</string>
+
+    <string name="facebook_app_id">513677443810839</string>
+    <string name="fb_login_protocol_scheme">fb513677443810839</string>
+    <string name="facebook_client_token">65b57b739f9631f42a3b673148db92aa</string>
 </resources>

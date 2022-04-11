@@ -12,15 +12,13 @@ class LoginViewModel : ViewModel() {
     private val _loginFormState = MutableLiveData<LoginFormState>()
     val loginFormState: LiveData<LoginFormState> = _loginFormState
 
-    private lateinit var auth: FirebaseAuth
-
     fun loginDataChanged(user: User) {
         with(user) {
             when {
-                !isEmailValid(email) -> _loginFormState.value =
-                    LoginFormState(emailError = true)
-                !isPasswordValid(password) -> _loginFormState.value =
-                    LoginFormState(passwordError = true)
+                !isEmailValid(email) ->
+                    _loginFormState.value = LoginFormState(emailError = true)
+                !isPasswordValid(password) ->
+                    _loginFormState.value = LoginFormState(passwordError = true)
                 else -> _loginFormState.value = LoginFormState(isDataValid = true)
             }
         }
